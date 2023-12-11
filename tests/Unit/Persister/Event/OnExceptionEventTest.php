@@ -1,0 +1,144 @@
+<?php
+
+/*
+ * This file is part of the FOSElasticaBundle package.
+ *
+ * (c) FriendsOfSymfony <https://friendsofsymfony.github.com/>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace FOS\ElasticaBundle\Tests\Unit\Persister\Event;
+
+use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
+use FOS\ElasticaBundle\Persister\Event\PersistEvent;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use FOS\ElasticaBundle\Provider\PagerInterface;
+use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\EventDispatcher\Event;
+
+/**
+ * @internal
+ */
+final class OnExceptionEventTest extends TestCase
+{
+    public function testShouldBeSubClassOfEventClass()
+    {
+        $rc = new \ReflectionClass(OnExceptionEvent::class);
+
+        $this->assertTrue($rc->isSubclassOf(Event::class));
+    }
+
+    public function testShouldImplementPersistEventInterface()
+    {
+        $rc = new \ReflectionClass(OnExceptionEvent::class);
+
+        $this->assertTrue($rc->implementsInterface(PersistEvent::class));
+    }
+
+    public function testShouldFinal()
+    {
+        $rc = new \ReflectionClass(OnExceptionEvent::class);
+
+        $this->assertTrue($rc->isFinal());
+    }
+
+    public function testCouldBeConstructedWithExpectedArguments()
+    {
+        new OnExceptionEvent(
+            $this->createPagerMock(),
+            $this->createObjectPersisterMock(),
+            new \Exception(),
+            $objects = [],
+            $options = []
+        );
+    }
+
+    public function testShouldAllowGetPagerSetInConstructor()
+    {
+        $expectedPager = $this->createPagerMock();
+
+        $event = new OnExceptionEvent($expectedPager, $this->createObjectPersisterMock(), new \Exception(), [], []);
+
+        $this->assertSame($expectedPager, $event->getPager());
+    }
+
+    public function testShouldAllowGetObjectPersisterSetInConstructor()
+    {
+        $expectedPersister = $this->createObjectPersisterMock();
+
+        $event = new OnExceptionEvent($this->createPagerMock(), $expectedPersister, new \Exception(), [], []);
+
+        $this->assertSame($expectedPersister, $event->getObjectPersister());
+    }
+
+    public function testShouldAllowGetOptionsSetInConstructor()
+    {
+        $expectedOptions = ['foo' => 'fooVal', 'bar' => 'barVal'];
+
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), new \Exception(), [], $expectedOptions);
+
+        $this->assertSame($expectedOptions, $event->getOptions());
+    }
+
+    public function testShouldAllowGetObjectsSetInConstructor()
+    {
+        $expectedObjects = [new \stdClass(), new \stdClass()];
+
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), new \Exception(), $expectedObjects, []);
+
+        $this->assertSame($expectedObjects, $event->getObjects());
+    }
+
+    public function testShouldAllowGetExceptionSetInConstructor()
+    {
+        $expectedException = new \Exception();
+
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), $expectedException, [], []);
+
+        $this->assertSame($expectedException, $event->getException());
+    }
+
+    public function testShouldAllowGetPreviouslySetException()
+    {
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), new \Exception(), [], []);
+
+        $expectedException = new \Exception();
+        $event->setException($expectedException);
+
+        $this->assertSame($expectedException, $event->getException());
+    }
+
+    public function testShouldNotIgnoreExceptionByDefault()
+    {
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), new \Exception(), [], []);
+
+        $this->assertFalse($event->isIgnored());
+    }
+
+    public function testShouldAllowIgnoredException()
+    {
+        $event = new OnExceptionEvent($this->createPagerMock(), $this->createObjectPersisterMock(), new \Exception(), [], []);
+
+        $event->setIgnored(true);
+
+        $this->assertTrue($event->isIgnored());
+    }
+
+    /**
+     * @return ObjectPersisterInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createObjectPersisterMock()
+    {
+        return $this->createMock(ObjectPersisterInterface::class);
+    }
+
+    /**
+     * @return PagerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createPagerMock()
+    {
+        return $this->createMock(PagerInterface::class);
+    }
+}
