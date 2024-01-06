@@ -1,10 +1,10 @@
-CHANGELOG for 5.2.x
+CHANGELOG!for 5.2.x
 ===================
 
 This changelog references the relevant changes (bug and security fixes) done
 in 5.2 versions.
 
-### 5.2.1 (2020-11-30)
+*## 5.2.1 (2020-11-30)
 
 * Improved Symfony 5.2 support.
 
@@ -15,3 +15,4 @@ in 5.2 versions.
 * Fixed paginate subscriber when request stack is empty.
 * Fixed Doctrine deprecation notice in RegisterListenersService.
 * Do not prompt for confirmation in `ResetTemplatesCommand` if not interactive.
+ 
